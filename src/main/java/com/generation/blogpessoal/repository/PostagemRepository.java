@@ -1,8 +1,8 @@
 package com.generation.blogpessoal.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import com.generation.blogpessoal.model.Postagem;
 
@@ -33,18 +33,45 @@ import com.generation.blogpessoal.model.Postagem;
 public interface PostagemRepository extends JpaRepository<Postagem, Long> {
 /*Traduzindo: toda e qualquer operação que for feita utilizando Postagem Repository, deverá utilizar a tabela tb_postagens, 
 	definida na classe Postagem, e vai utilizar o atributo long (id) como chave primária.*/
+
+/*Query Methods: Métodos de Consulta Personalizados
+ *Utilizados para criar consultas específicas com qualquer atributp da Clsse Associada a Interface Repositório.
+ *São declaradas dentro da Repository e implementadas na Controller ou Service. 
+ *
+ *No exemplo acima, o método findAllByTituloContainingIgnoreCase(String titulo) é um Query Method personalizado.
+ *Analisando:
+ *- Find = SELECT: busca de registros no DB
+ *- All = *: todos os registros
+ *- By = WHERE: condição para a busca
+ *- Titulo = coluna/atributo da tabela Postagem
+ *- Containing = LIKE %?%: busca por similaridade (contém)
+ *- IgnoreCase = IGNORE CASE: não diferenciar maiúsculas e minúsculas
+ *
+ *Então: 
+ *- findAllBy (SELECT): Indica que queremos buscar todos os registros que correspondem a Título
+ *- Titulo: Especifica o atributo da entidade Postagem que estamos consultando
+ *- Containing: Indica que queremos buscar registros onde o título contém a string fornecida como parâmetro.
+ *O Spring Data JPA interpreta esse nome de método e gera automaticamente a consulta SQL correspondente para buscar os dados no banco de dados.*/
+
+	 public List <Postagem> findAllByTituloContainingIgnoreCase(String titulo); //Equivalente a: SELECT * FROM tb_postagens WHERE titulo LIKE "%?%";
+	 
 }
 
-/*public List<Postagem> findAllByTituloContainingIgnoreCase(String titulo);
-	return postagemRepository.fundById(id)
+
+/*return postagemRepository.fundById(id)
 			.map(resposta -> ResponseEntity.ok(resposta))
-			.orElse(ResponseEntity.notFound().build());
-}// SELECT * FROM tb_ostagens WHERE titulo LIKE "%?%";
+			.orElse(ResponseEntity.notFound().build());*/
+
+	
+	
+	
 //A ? equivale ao valor que o usuário atribuir ao título (parâmetro da requisição)
 
 
 
-@PostMapping
+/*@PostMapping
 public ReponseEntity<Postagem> post(@RequestBody Postagem postagem){
 	
 	*/
+
+/*A Repository trabalha com uma linguagem própria, chamada JPQL = Java Persistance Query Language */

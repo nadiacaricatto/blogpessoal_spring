@@ -103,13 +103,33 @@ public class Postagem {
 
 	// O @CreateTimestamp guarda a data e hora de criação da postagem
 
-	/*@ManyToOne
+	@ManyToOne
 	@JsonIgnoreProperties("postagem")
 	private Tema tema;
 
+	@ManyToOne
+	@JsonIgnoreProperties("postagem")
+	private Usuario usuario;
+	
+	public Tema getTema() {
+		return tema;
+	}
+
+	public void setTema(Tema tema) {
+		this.tema = tema;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
 	public long getId() {
 		return id;
-	}*/
+	}
 
 	// Não criaremos método construtor, quem cria é o próprio spring internamente -
 	// e não na classe. Nós criamos
