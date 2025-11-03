@@ -1,5 +1,5 @@
 package com.generation.blogpessoal.security;
- 
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
@@ -72,7 +72,6 @@ public class JwtService {
     }
     
 }
- 
 
 /*Linha 17: A classe foi anotada com @Component, indicando que se trata de uma Classe de Componente.
  * Isso significa que será gerenciada pelo Spring, podendo injetar e instanciar dependências em outras classes sempre que necessário.
