@@ -10,9 +10,7 @@ import com.generation.blogpessoal.model.Usuario;
 
 public class UserDetailsImpl implements UserDetails {
 
-	private static final long serialVersionUID = 1L; /*Sempre que implementamos algo que utiliza interface serializable, deve-se criar um serialVersionUID, 
-	garantindo a compatibilidade entre diferentes versões da classe durante o processo de serialização e desserialização.*/
-
+	private static final long serialVersionUID = 1L;
 	private String username;
 	private String password;
 

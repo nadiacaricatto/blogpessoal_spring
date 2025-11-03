@@ -1,5 +1,6 @@
 package com.generation.blogpessoal.security;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,11 +15,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@Configuration //traz as anotações da  
-@EnableWebSecurity //habilita a segurança web no projeto
+import jakarta.servlet.http.HttpServletResponse;
+
+@Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
-    private static final String[] PUBLIC_ENDPOINTS = { //endpoints de autenticação que não precisam de token
+    private static final String[] PUBLIC_ENDPOINTS = {
         "/usuarios/logar",
         "/usuarios/cadastrar",
         "/error/**",
@@ -50,6 +53,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
                 .anyRequest().authenticated()
             )
+            
+            .exceptionHandling(exceptions -> exceptions
+                    .authenticationEntryPoint((request, response, authException) ->
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+                            "Não autorizado - Token JWT ausente ou inválido"))
+            )
+ 
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
     }
