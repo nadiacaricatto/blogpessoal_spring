@@ -1,78 +1,26 @@
-package com.generation.blogpessoal.configuration;
+FROM eclipse-temurin:17-jdk AS build
 
-import org.springdoc.core.customizers.OpenApiCustomizer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+WORKDIR /workspace/app
 
-import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.ExternalDocumentation;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.responses.ApiResponse;
-import io.swagger.v3.oas.models.responses.ApiResponses;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY src src
 
-@Configuration
-public class SwaggerConfig {
-	 
-	@Bean
-    OpenAPI springBlogPessoalOpenAPI() {
-        return new OpenAPI()
-            .info(new Info()
-                .title("Projeto Blog Pessoal")
-                .description("Projeto Blog Pessoal - Generation Brasil")
-                .version("v0.0.1")
-                .license(new License()
-                    .name("Generation Brasil")
-                    .url("https://brazil.generation.org/"))
-                .contact(new Contact()
-                    .name("Generation Brasil")
-                    .url("https://github.com/conteudoGeneration")
-                    .email("conteudogeneration@generation.org")))
-            .externalDocs(new ExternalDocumentation()
-                .description("Github")
-                .url("https://github.com/conteudoGeneration/"))
-            .components(new Components()
-                    .addSecuritySchemes("jwt_auth", createSecurityScheme()))
-                .addSecurityItem(new SecurityRequirement().addList("jwt_auth"));
-    }
+RUN chmod -R 777 ./mvnw
 
-	@Bean
-	OpenApiCustomizer customerGlobalHeaderOpenApiCustomiser() {
+RUN ./mvnw install -DskipTests
 
-		return openApi -> {
-			openApi.getPaths().values().forEach(pathItem -> pathItem.readOperations().forEach(operation -> {
+RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../.jar)
 
-				ApiResponses apiResponses = operation.getResponses();
+FROM eclipse-temurin:17-jdk
 
-				apiResponses.addApiResponse("200", createApiResponse("Sucesso!"));
-				apiResponses.addApiResponse("201", createApiResponse("Objeto Persistido!"));
-				apiResponses.addApiResponse("204", createApiResponse("Objeto Excluído!"));
-				apiResponses.addApiResponse("400", createApiResponse("Erro na Requisição!"));
-				apiResponses.addApiResponse("401", createApiResponse("Acesso Não Autorizado!"));
-				apiResponses.addApiResponse("403", createApiResponse("Acesso Proibido!"));
-				apiResponses.addApiResponse("404", createApiResponse("Objeto Não Encontrado!"));
-				apiResponses.addApiResponse("500", createApiResponse("Erro na Aplicação!"));
+VOLUME /tmp
 
-			}));
-		};
-	}
+ARG DEPENDENCY=/workspace/app/target/dependency
 
-	private ApiResponse createApiResponse(String message) {
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 
-		return new ApiResponse().description(message);
-
-	}
-	
-	private SecurityScheme createSecurityScheme() {
-	    return new SecurityScheme()
-	        .name("jwt_auth")
-	        .type(SecurityScheme.Type.HTTP)
-	        .scheme("bearer")
-	        .bearerFormat("JWT")
-	        .description("Insira apenas o token JWT (a palavra 'Bearer' será adicionada automaticamente)");
-	}
-}
+ENTRYPOINT ["java","-cp","app:app/lib/","com.generation.blogpessoal.BlogpessoalApplication"]
